@@ -10,6 +10,7 @@ class Scene {
 private:
     unsigned int vao;
     VertexBufferObject* vbo;
+    int verticesCount;
 
 private:
     unsigned int shaderProgram;

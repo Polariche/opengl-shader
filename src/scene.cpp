@@ -4,45 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "scene.h"
-
-
-// Shaders
-const GLchar* vertexShader_source = "#version 330 core\n"
-    "#extension GL_ARB_explicit_uniform_location : require\n"
-    "layout (location = 0) in vec3 position;\n"
-    "uniform mat4 mvp;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(position, 1.0);\n"
-    "}\0";
-const GLchar* geometryShader_source = "#version 330 core\n"
-    "layout (points) in;\n"
-    "layout (triangle_strip, max_vertices = 5) out;\n"
-    "uniform mat4 mvp;\n"
-    "void build_house(vec4 position)\n"
-    "{    \n"
-    "   gl_Position = mvp*(position + vec4(-0.2, -0.2, 0.0, 0.0));\n"
-    "    EmitVertex();   \n"
-    "   gl_Position = mvp*(position + vec4(0.2, -0.2, 0.0, 0.0));\n"
-    "    EmitVertex();   \n"
-    "   gl_Position = mvp*(position + vec4(-0.2, 0.2, 0.0, 0.0));\n"
-    "    EmitVertex();   \n"
-    "   gl_Position = mvp*(position + vec4(0.2, 0.2, 0.0, 0.0));\n"
-    "    EmitVertex();   \n"
-    "   gl_Position = mvp*(position + vec4(0.0, 0.4, 0.0, 0.0));\n"
-    "    EmitVertex();   \n"
-    "   EndPrimitive();\n"
-    "}\n"
-    "void main() {    \n"
-    "    build_house(gl_in[0].gl_Position);\n"
-    "}\0";
-const GLchar* fragmentShader_source = "#version 330 core\n"
-    "out vec4 color;\n"
-    "void main()\n"
-    "{\n"
-    "color = vec4(0.8F, 0.5f, 0.2f, 0.8F);\n"
-    "}\n\0";
-
+#include "utils.h"
 
 Scene::Scene() {
 
@@ -51,18 +13,26 @@ Scene::Scene() {
 void Scene::Init() {
     shaderProgram = glCreateProgram();
 
-    vertexShader = new Shader(GL_VERTEX_SHADER, vertexShader_source);
-    vertexShader->Attach(shaderProgram);
-    vertexShader->Delete();
+    std::string vertexShaderSource = load_text("../src/shaders/vert.vert");
+    if (!vertexShaderSource.empty()) {
+        vertexShader = new Shader(GL_VERTEX_SHADER, vertexShaderSource.c_str());
+        vertexShader->Attach(shaderProgram);
+        vertexShader->Delete();
+    }
 
-    
-    geometryShader = new Shader(GL_GEOMETRY_SHADER, geometryShader_source);
-    geometryShader->Attach(shaderProgram);
-    geometryShader->Delete();
+    std::string geometryShaderSource = load_text("../src/shaders/geom.geom");
+    if (!geometryShaderSource.empty()) {
+        geometryShader = new Shader(GL_GEOMETRY_SHADER, geometryShaderSource.c_str());
+        geometryShader->Attach(shaderProgram);
+        geometryShader->Delete();
+    }
 
-    fragmentShader = new Shader(GL_FRAGMENT_SHADER, fragmentShader_source);
-    fragmentShader->Attach(shaderProgram);
-    fragmentShader->Delete();
+    std::string fragmentShaderSource = load_text("../src/shaders/frag.frag");
+    if (!fragmentShaderSource.empty()) {
+        fragmentShader = new Shader(GL_FRAGMENT_SHADER, fragmentShaderSource.c_str());
+        fragmentShader->Attach(shaderProgram);
+        fragmentShader->Delete();
+    }
 
     glLinkProgram(shaderProgram);
     
@@ -76,6 +46,8 @@ void Scene::Init() {
 }
 
 void Scene::BindVertices(const void *data, const int size) {
+    this->verticesCount = size / sizeof(float);
+
     glBindVertexArray(vao);
     
     vbo->BufferData(data, size);
@@ -92,18 +64,15 @@ void Scene::Render() {
     glUseProgram(shaderProgram);
 
     glm::mat4 mvp;
-    if (!!modelTransform) {
-        //modelTransform->SetRotation(glm::vec3(0.0f, 3.14f * glfwGetTime(), 0.0f));
+    if (!!modelTransform)
         mvp = modelTransform->GetMatrix();
-    }
-        
     else
         mvp = glm::mat4(1.0F);
     glUniformMatrix4fv(uniformMVP, 1, GL_FALSE, glm::value_ptr(mvp));
 
     glBindVertexArray(vao);
     glPointSize(10.0f);
-    glDrawArrays(GL_POINTS, 0, 3);
+    glDrawArrays(GL_POINTS, 0, verticesCount);
     glBindVertexArray(0);
 }
 
@@ -130,7 +99,7 @@ void Scene::ProcessInput(Input* input) {
         
     // // rotation with respect to the local coord
     // if (input->GetUp())
-    //     rot = rot * glm::quat(glm::vec3(diff, 0.0f, 0.0f))t;
+    //     rot = rot * glm::quat(glm::vec3(diff, 0.0f, 0.0f));
     
     // if (input->GetDown())
     //     rot = rot * glm::quat(glm::vec3(-diff, 0.0f, 0.0f));

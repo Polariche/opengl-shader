@@ -67,28 +67,24 @@ int main ()
     Scene* scene = new Scene();
     scene->Init();
     
-    // const int N = 2;
-    // float vertices[N*N*N*3];
-    // for (int i=0;i<N;i++) {
-    //     for (int j=0;j<N;j++) {
-    //         for (int k=0;k<N;k++) {
-    //             vertices[i*(3*N*N)+j*(3*N)+k*3 + 0] = (float) k / N * 0.8F;
-    //             vertices[i*(3*N*N)+j*(3*N)+k*3 + 1] = (float) j / N * 0.8F;
-    //             vertices[i*(3*N*N)+j*(3*N)+k*3 + 2] = (float) i / N * 0.8F;
-    //         }
-    //     }
-    // }
-
-    float vertices[] =
+    // setup grid;
+    // TODO: bind the functionality to key input
     {
-        0.0F, 0.4F, 0.0F,
-        -0.8F, -0.4F, 0.0F,
-        0.8F, -0.4F, 0.0F,
-    };
-    scene->BindVertices(vertices, (3*3) * sizeof(float));
+        const int N = 4;
+        float vertices[N*N*N*3];
+        for (int i=0;i<N;i++) {
+            for (int j=0;j<N;j++) {
+                for (int k=0;k<N;k++) {
+                    vertices[i*(3*N*N)+j*(3*N)+k*3 + 0] = (float) k / N * 0.8F;
+                    vertices[i*(3*N*N)+j*(3*N)+k*3 + 1] = (float) j / N * 0.8F;
+                    vertices[i*(3*N*N)+j*(3*N)+k*3 + 2] = (float) i / N * 0.8F;
+                }
+            }
+        }
+        scene->BindVertices(vertices, (N*N*N*3) * sizeof(float));
+    }
 
     input = new Input();
-    //input->SetLeft(true);
     glfwSetKeyCallback(window, &OnKey);
 
     while (!glfwWindowShouldClose(window))
