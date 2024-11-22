@@ -6,7 +6,7 @@
 Transform::Transform()
 {
     position = glm::vec3(0.0F);
-    rotation = glm::quat();
+    rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     scale = glm::vec3(1.0f);
 }
 

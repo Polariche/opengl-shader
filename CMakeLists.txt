@@ -13,6 +13,7 @@ add_executable(shader2
         src/shader.cpp
         src/vertexbufferobject.cpp
         src/transform.cpp
+        src/input.cpp
         src/main.cpp
 )
 

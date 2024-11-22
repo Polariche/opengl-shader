@@ -51,8 +51,6 @@ Scene::Scene() {
 void Scene::Init() {
     shaderProgram = glCreateProgram();
 
-
-
     vertexShader = new Shader(GL_VERTEX_SHADER, vertexShader_source);
     vertexShader->Attach(shaderProgram);
     vertexShader->Delete();
@@ -64,7 +62,7 @@ void Scene::Init() {
 
     fragmentShader = new Shader(GL_FRAGMENT_SHADER, fragmentShader_source);
     fragmentShader->Attach(shaderProgram);
-    vertexShader->Delete();
+    fragmentShader->Delete();
 
     glLinkProgram(shaderProgram);
     
@@ -95,7 +93,7 @@ void Scene::Render() {
 
     glm::mat4 mvp;
     if (!!modelTransform) {
-        modelTransform->SetRotation(glm::vec3(0.0f, 3.14f * glfwGetTime(), 0.0f));
+        //modelTransform->SetRotation(glm::vec3(0.0f, 3.14f * glfwGetTime(), 0.0f));
         mvp = modelTransform->GetMatrix();
     }
         
@@ -107,4 +105,41 @@ void Scene::Render() {
     glPointSize(10.0f);
     glDrawArrays(GL_POINTS, 0, 3);
     glBindVertexArray(0);
+}
+
+void Scene::ProcessInput(Input* input) {
+    const float diff = 3.14f * 0.10f / 60;
+    glm::quat rot = modelTransform->GetRotation();
+    glm::quat inv = glm::inverse(rot);
+    
+    glm::quat rot2 = rot * inv;
+
+    // rotation with respect to the world coord
+    if (input->GetUp())
+        rot = glm::quat(glm::vec3(diff, 0.0f, 0.0f)) * rot;
+    
+    if (input->GetDown())
+        rot = glm::quat(glm::vec3(-diff, 0.0f, 0.0f)) * rot;
+
+    if (input->GetLeft())
+        rot = glm::quat(glm::vec3(0.0f, diff, 0.0f)) * rot;
+
+    if (input->GetRight())
+        rot = glm::quat(glm::vec3(0.0f, -diff, 0.0f)) * rot;
+
+        
+    // // rotation with respect to the local coord
+    // if (input->GetUp())
+    //     rot = rot * glm::quat(glm::vec3(diff, 0.0f, 0.0f))t;
+    
+    // if (input->GetDown())
+    //     rot = rot * glm::quat(glm::vec3(-diff, 0.0f, 0.0f));
+
+    // if (input->GetLeft())
+    //     rot = rot * glm::quat(glm::vec3(0.0f, diff, 0.0f));
+
+    // if (input->GetRight())
+    //     rot = rot * glm::quat(glm::vec3(0.0f, -diff, 0.0f));
+    
+    modelTransform->SetRotation(rot);
 }

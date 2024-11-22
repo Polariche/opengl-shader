@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "transform.h"
 #include "vertexbufferobject.h"
+#include "input.h"
 
 class Scene {
 
@@ -27,4 +28,5 @@ public:
     void Init();
     void Render();
     void BindVertices(const void *data, const int size);
+    void ProcessInput(Input* input);
 };

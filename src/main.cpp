@@ -13,8 +13,32 @@
 #include "scene.h"
 #include "shader.h"
 #include "vertexbufferobject.h"
+#include "input.h"
 
+Input* input;
+void OnKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (action == GLFW_REPEAT) {
+        return;
+    }
 
+    bool is_down = action == GLFW_PRESS;
+
+    switch (key) {
+    case GLFW_KEY_W:
+        input->SetUp(is_down);
+        break;
+    case GLFW_KEY_A:
+        input->SetLeft(is_down);
+        break;
+    case GLFW_KEY_S:
+        input->SetDown(is_down);
+        break;
+    case GLFW_KEY_D:
+        input->SetRight(is_down);
+        break;
+    }
+
+}
 
 int main () 
 {
@@ -63,10 +87,15 @@ int main ()
     };
     scene->BindVertices(vertices, (3*3) * sizeof(float));
 
+    input = new Input();
+    //input->SetLeft(true);
+    glfwSetKeyCallback(window, &OnKey);
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        scene->ProcessInput(input);
         scene->Render();
 
         glfwSwapBuffers(window);
